@@ -1,9 +1,11 @@
+using System.Diagnostics.CodeAnalysis;
 using UnityEditor;
 using UnityEngine;
 
+[SuppressMessage("ReSharper", "IdentifierTypo")]
 public class LDVGUIToolEditor : EditorWindow
 {
-    private enum WindowTabs {MainLDVMenu, LDVRuler}
+    private enum WindowTabs {MainLDVMenu, LDVRuler, LDVGameObjectElements}
     private WindowTabs currentWindowTab = WindowTabs.MainLDVMenu;
 
     private static GameObject rulerSpherePrefab;
@@ -28,6 +30,10 @@ public class LDVGUIToolEditor : EditorWindow
             case WindowTabs.LDVRuler:
                 LDVRulerStuff();
                 break;
+            
+            case WindowTabs.LDVGameObjectElements:
+                LDVGameObjectModifiableElements();
+                break;
         }
     }
 
@@ -47,6 +53,11 @@ public class LDVGUIToolEditor : EditorWindow
         if (GUILayout.Button("Measuring Ruler?", GUILayout.Height(30f)))
         {
             currentWindowTab = WindowTabs.LDVRuler;
+        }
+
+        if (GUILayout.Button("Object Elements?", GUILayout.Height(30f)))
+        {
+            currentWindowTab = WindowTabs.LDVGameObjectElements;
         }
     }
     
@@ -134,5 +145,10 @@ public class LDVGUIToolEditor : EditorWindow
                 }
             }
         }
+    }
+
+    void LDVGameObjectModifiableElements()
+    {
+        
     }
 }
