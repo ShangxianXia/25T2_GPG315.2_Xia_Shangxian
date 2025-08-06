@@ -7,7 +7,7 @@ public class LDVManager : MonoBehaviour
 {
     public static LDVManager LdvManagerInstance {get; private set;}
     
-    [Header("Ruler Things")]
+    [Header("GameObjects that are to have a measurement")]
     public List<GameObject> LDVRulerSpheresList = new();
     
     private void Awake()
