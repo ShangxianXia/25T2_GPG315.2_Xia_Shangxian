@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using Codice.CM.SEIDInfo;
 using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
@@ -7,7 +8,7 @@ using UnityEngine;
 [SuppressMessage("ReSharper", "IdentifierTypo")]
 public class LDVGUIToolEditor : EditorWindow
 {
-    private enum WindowTabs {MainLDVMenu, LDVRuler, LDVGameObjectElements}
+    private enum WindowTabs {MainLDVMenu, LDVRuler, LDVGameObjectElements, LDVHeatMapConfigurations}
     private WindowTabs currentWindowTab = WindowTabs.MainLDVMenu;
 
     [MenuItem("LDV/Level Design Visualisation Tool")]
@@ -33,6 +34,10 @@ public class LDVGUIToolEditor : EditorWindow
             case WindowTabs.LDVGameObjectElements:
                 LDVGameObjectModifiableElements();
                 break;
+            
+            case WindowTabs.LDVHeatMapConfigurations:
+                LDVHeatMapConfigurations();
+                break;
         }
     }
 
@@ -57,6 +62,11 @@ public class LDVGUIToolEditor : EditorWindow
         if (GUILayout.Button("Object Elements?", GUILayout.Height(30f)))
         {
             currentWindowTab = WindowTabs.LDVGameObjectElements;
+        }
+        
+        if (GUILayout.Button("Heat map configurations?", GUILayout.Height(30f)))
+        {
+            currentWindowTab = WindowTabs.LDVHeatMapConfigurations;
         }
     }
     
@@ -147,8 +157,7 @@ public class LDVGUIToolEditor : EditorWindow
             }
         }
     }
-
-        
+    
     private float scaleValue = 1;
     private float rotationValue = 360;
     private GameObject prefabForObjectInstantiation;
@@ -166,11 +175,6 @@ public class LDVGUIToolEditor : EditorWindow
     private float advancedZScaleValue = 0;
     void LDVGameObjectModifiableElements()
     {
-        if (GUILayout.Button("Close"))
-        {
-            Close();
-        }
-        
         // Object transform / Colour modifications //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         GUILayout.Space(10f);
         GUILayout.Label("Reset Selected Game Objects", EditorStyles.boldLabel);
@@ -655,6 +659,112 @@ public class LDVGUIToolEditor : EditorWindow
                 else
                 {
                     Debug.LogWarning("No selection to Instantiate the selected game object.");
+                }
+            }
+        }
+        GUILayout.EndHorizontal();
+    }
+
+    private int newDotSizeForHeatMap;
+    void LDVHeatMapConfigurations()
+    {
+        EditorGUILayout.HelpBox("There is not supposed to be more than 1 heat map at once!\n The heat map scripts are also supposed to be on planes!", MessageType.Info);
+        
+        GUILayout.BeginHorizontal();
+        {
+            // make a new plane become a heat map
+            if (GUILayout.Button("Make This Plane A Heat Map"))
+            {
+                if (Selection.activeGameObject)
+                {
+                    // checks if exists, if not add, if does debug warning
+                    HeatMapGeneration heatMapGeneration = Selection.activeGameObject.GetComponent<HeatMapGeneration>();
+                    if (!heatMapGeneration)
+                    {
+                        heatMapGeneration = Selection.activeGameObject.AddComponent<HeatMapGeneration>();
+                    }
+                    else if (heatMapGeneration)
+                    {
+                        Debug.LogWarning("Game object already has the heatmap script attached.");
+                    }
+                }
+                else
+                {
+                    Debug.LogWarning("No selection to add the heatmap script.");
+                }
+            }
+
+            if (GUILayout.Button("Remove Heat Map script from this plane"))
+            {
+                if (Selection.activeGameObject)
+                {
+                    // checks if exists, if not debug warning, if does remove
+                    HeatMapGeneration heatMapGeneration = Selection.activeGameObject.GetComponent<HeatMapGeneration>();
+                    if (heatMapGeneration)
+                    {
+                        DestroyImmediate(heatMapGeneration, false);
+                    }
+                    else if (!heatMapGeneration)
+                    {
+                        Debug.LogWarning("Game object has no heatmap script to remove.");
+                    }
+                }
+                else
+                {
+                    Debug.LogWarning("No selection to Remove the heatmap script.");
+                }
+            }
+        }
+        GUILayout.EndHorizontal();
+        
+        GUILayout.BeginHorizontal();
+        {
+            newDotSizeForHeatMap = (int)GUILayout.HorizontalSlider(newDotSizeForHeatMap, 0, 100);
+            string inputNewDotValue = GUILayout.TextField(newDotSizeForHeatMap.ToString(), GUILayout.ExpandWidth(false));
+            if (GUILayout.Button("Change Heat Map Dotting Size"))
+            {
+                if (Selection.activeGameObject)
+                {
+                    // change the size of the pen for this selected plane with heat map
+                    if (Selection.activeGameObject.GetComponent<HeatMapGeneration>())
+                    {
+                        if (int.TryParse(inputNewDotValue, out int newDotSizeToChange))
+                        {
+                            Selection.activeGameObject.GetComponent<HeatMapGeneration>().heatMapPointSize = newDotSizeToChange;
+                        }
+                    }
+                    else
+                    {
+                        Debug.LogWarning("No Heat map script found on selected game object.");
+                    }
+                }
+                else
+                {
+                    Debug.LogWarning("No selected game object for this action");
+                }
+            }
+        }
+        GUILayout.EndHorizontal();
+        
+        GUILayout.Space(10);
+        EditorGUILayout.HelpBox("Should be used in play mode otherwise might break", MessageType.Info);
+        GUILayout.BeginHorizontal();
+        {
+            if (GUILayout.Button("Make this the player for the heat map"))
+            {
+                // make the selected game object the new player
+                if (Selection.activeGameObject)
+                {
+                    HeatMapGeneration[] gameObjectsWithHeatMapScripts = FindObjectsByType<HeatMapGeneration>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+                    foreach (HeatMapGeneration gameObjectsWithHeatMap in gameObjectsWithHeatMapScripts)
+                    {
+                        // loop through each game object with the heatmap script and assign the selected game object to be the player
+                        gameObjectsWithHeatMap.GetComponent<HeatMapGeneration>().playerGameObjectThatIsUsedForHeatMap = Selection.activeGameObject;
+                    }
+                }
+                else
+                {
+                    Debug.LogWarning("No selection for this action");
                 }
             }
         }

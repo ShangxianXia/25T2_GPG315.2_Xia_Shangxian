@@ -1,3 +1,5 @@
+using System.Transactions;
+using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 
@@ -19,18 +21,18 @@ public class HeatMapGeneration : MonoBehaviour
     
     [Header("Heat map, point size / colour")] [Space(5)]
     public int setHeatMapPointSize = 4;
-    [SerializeField] private int heatMapPointSize = 4;
+    public int heatMapPointSize = 4;
     [SerializeField] private Color heatMapColour = Color.green;
     private Color modifiedHeatMapColour;
     
     // heat map boundaries
     public GameObject settingTheBoundsOfTheHeatMapWithThisGameObjectReference;
-    private Vector3 worldMinBounds;
-    private Vector3 worldMaxBounds;
+    public Vector3 worldMinBounds;
+    public Vector3 worldMaxBounds;
 
     private void Awake()
     {
-        playerPrefabHolderReference = GetComponentInChildren<PrefabHolderIfPlayerIsNotAssigned>();
+        playerPrefabHolderReference = FindFirstObjectByType<PrefabHolderIfPlayerIsNotAssigned>();
         textureWidth = setTextureWidth;
         textureHeight = setTextureHeight;
         settingTheBoundsOfTheHeatMapWithThisGameObjectReference = gameObject;
@@ -85,6 +87,15 @@ public class HeatMapGeneration : MonoBehaviour
 
     private void Start()
     {
+        if ((int)gameObject.transform.rotation.y != 180)
+        {
+            gameObject.transform.rotation = Quaternion.Euler(0, 180, 0);
+        }
+
+        if (!playerPrefabHolderReference)
+        {
+            playerPrefabHolderReference = FindFirstObjectByType<PrefabHolderIfPlayerIsNotAssigned>();
+        }
         ClearHeatMap();
     }
     
@@ -106,21 +117,18 @@ public class HeatMapGeneration : MonoBehaviour
         }
         heatMapTextureReference.Apply();
         
-        GetComponent<MeshRenderer>().material.mainTexture = heatMapTextureReference;
+        MeshRenderer meshRendererReference = GetComponent<MeshRenderer>();
+        meshRendererReference.material.shader = Shader.Find("Unlit/Texture");
+        meshRendererReference.material.mainTexture = heatMapTextureReference;
     }
 
     private void PlotHeatPointsOnMapWherePlayerIsOnMap()
     {
         if (!playerGameObjectThatIsUsedForHeatMap && !shownMissingReferenceMessage)
         {
-            shownMissingReferenceMessage = true;
-            Debug.LogWarning("No player for heat map plotting detected, spawning a new player on top");
-            Vector3 modifiedPositionForPlayer = gameObject.transform.position;
-            modifiedPositionForPlayer.y += 1f;
-            playerGameObjectThatIsUsedForHeatMap = Instantiate(playerPrefabHolderReference.playerPrefabGameObjectHolder, modifiedPositionForPlayer, Quaternion.identity);
-            shownMissingReferenceMessage = false;
+            SpawnNewTempPlayerIfNonExists();
         }
-        
+
         Vector3 playerPos = playerGameObjectThatIsUsedForHeatMap.transform.position;
         
         // Normalises world bound positions
@@ -169,5 +177,15 @@ public class HeatMapGeneration : MonoBehaviour
                 Gizmos.DrawWireCube(rendererOfTheGameObjectBeingUsed.bounds.center, rendererOfTheGameObjectBeingUsed.bounds.size);
             }
         }
+    }
+
+    private void SpawnNewTempPlayerIfNonExists()
+    {
+        shownMissingReferenceMessage = true;
+        Debug.LogWarning("No player for heat map plotting detected, spawning a new player on top");
+        Vector3 modifiedPositionForPlayer = gameObject.transform.position;
+        modifiedPositionForPlayer.y += 1f;
+        playerGameObjectThatIsUsedForHeatMap = Instantiate(playerPrefabHolderReference.playerPrefabGameObjectHolder, modifiedPositionForPlayer, Quaternion.identity);
+        shownMissingReferenceMessage = false;
     }
 }
