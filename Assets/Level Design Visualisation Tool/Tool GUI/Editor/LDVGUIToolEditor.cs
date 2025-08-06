@@ -1,14 +1,10 @@
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using Codice.CM.SEIDInfo;
-using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 
-[SuppressMessage("ReSharper", "IdentifierTypo")]
 public class LDVGUIToolEditor : EditorWindow
 {
-    private enum WindowTabs {MainLDVMenu, LDVRuler, LDVGameObjectElements, LDVHeatMapConfigurations}
+    private enum WindowTabs {MainLDVMenu, LDVRuler, LDVGameObjectElements, LDVHeatMapConfigurations, LDVVisualisations}
     private WindowTabs currentWindowTab = WindowTabs.MainLDVMenu;
 
     [MenuItem("LDV/Level Design Visualisation Tool")]
@@ -37,6 +33,10 @@ public class LDVGUIToolEditor : EditorWindow
             
             case WindowTabs.LDVHeatMapConfigurations:
                 LDVHeatMapConfigurations();
+                break;
+            
+            case WindowTabs.LDVVisualisations:
+                LDVVisualisations();
                 break;
         }
     }
@@ -67,6 +67,11 @@ public class LDVGUIToolEditor : EditorWindow
         if (GUILayout.Button("Heat map configurations?", GUILayout.Height(30f)))
         {
             currentWindowTab = WindowTabs.LDVHeatMapConfigurations;
+        }
+        
+        if (GUILayout.Button("Visualisations?", GUILayout.Height(30f)))
+        {
+            currentWindowTab = WindowTabs.LDVVisualisations;
         }
     }
     
@@ -158,21 +163,22 @@ public class LDVGUIToolEditor : EditorWindow
         }
     }
     
+    // Game object element variables //
     private float scaleValue = 1;
     private float rotationValue = 360;
     private GameObject prefabForObjectInstantiation;
     // Advanced position values
-    private float advancedXPositionValue = 0;
-    private float advancedYPositionValue = 0;
-    private float advancedZPositionValue = 0;
+    private float advancedXPositionValue;
+    private float advancedYPositionValue;
+    private float advancedZPositionValue;
     // Advanced rotation values
-    private float advancedXRotationValue = 0;
-    private float advancedYRotationValue = 0;
-    private float advancedZRotationValue = 0;
+    private float advancedXRotationValue;
+    private float advancedYRotationValue;
+    private float advancedZRotationValue;
     // Advanced scale values
-    private float advancedXScaleValue = 0;
-    private float advancedYScaleValue = 0;
-    private float advancedZScaleValue = 0;
+    private float advancedXScaleValue;
+    private float advancedYScaleValue;
+    private float advancedZScaleValue;
     void LDVGameObjectModifiableElements()
     {
         // Object transform / Colour modifications //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -677,11 +683,11 @@ public class LDVGUIToolEditor : EditorWindow
             {
                 if (Selection.activeGameObject)
                 {
-                    // checks if exists, if not add, if does debug warning
+                    // checks if exists, if not add, if it does debug warning
                     HeatMapGeneration heatMapGeneration = Selection.activeGameObject.GetComponent<HeatMapGeneration>();
                     if (!heatMapGeneration)
                     {
-                        heatMapGeneration = Selection.activeGameObject.AddComponent<HeatMapGeneration>();
+                        Selection.activeGameObject.AddComponent<HeatMapGeneration>();
                     }
                     else if (heatMapGeneration)
                     {
@@ -698,7 +704,7 @@ public class LDVGUIToolEditor : EditorWindow
             {
                 if (Selection.activeGameObject)
                 {
-                    // checks if exists, if not debug warning, if does remove
+                    // checks if exists, if not debug warning, if it does remove
                     HeatMapGeneration heatMapGeneration = Selection.activeGameObject.GetComponent<HeatMapGeneration>();
                     if (heatMapGeneration)
                     {
@@ -769,5 +775,197 @@ public class LDVGUIToolEditor : EditorWindow
             }
         }
         GUILayout.EndHorizontal();
+    }
+    
+    public string allGizmosStatus = "Off";
+    public string enemyAtkRngGizmo = "Off";
+    public string enemySightRngGizmo = "Off";
+    public string enemyBoxColliderGizmo = "Off";
+    public string enemyPatrolPointGizmo = "Off";
+    void LDVVisualisations()
+    {
+        EditorGUILayout.HelpBox("This is the LDV Visualisation section \n Must be in play to work!", MessageType.Info);
+            
+        GUILayout.BeginHorizontal();
+        {
+            GUILayout.Label($"All enemy Gizmos is currently: {allGizmosStatus}", EditorStyles.boldLabel);
+            if (GUILayout.Button("Turn On/Off All enemy Gizmos", GUILayout.ExpandWidth(true)))
+            {
+                if (Application.isPlaying)
+                {
+                    if (!FakingEnemyVisualisationsTest.fakingVisualisationsTestInstance.turnOnAllGizmos)
+                    {
+                        FakingEnemyVisualisationsTest.fakingVisualisationsTestInstance.turnOnAllGizmos = true;
+                        EditorGUIUtility.PingObject(FakingEnemyVisualisationsTest.fakingVisualisationsTestInstance.gameObject);
+                        Selection.activeGameObject = FakingEnemyVisualisationsTest.fakingVisualisationsTestInstance.gameObject;
+                        allGizmosStatus = "On";
+                    }
+                    else if (FakingEnemyVisualisationsTest.fakingVisualisationsTestInstance.turnOnAllGizmos)
+                    {
+                        FakingEnemyVisualisationsTest.fakingVisualisationsTestInstance.turnOnAllGizmos = false;
+                        EditorGUIUtility.PingObject(FakingEnemyVisualisationsTest.fakingVisualisationsTestInstance.gameObject);
+                        Selection.activeGameObject = FakingEnemyVisualisationsTest.fakingVisualisationsTestInstance.gameObject;
+                        allGizmosStatus = "Off";
+                    }
+                }
+                else if (!Application.isPlaying)
+                {
+                    Debug.LogWarning("Must be in play mode for this button to work!");
+                }
+            }
+        }
+        GUILayout.EndHorizontal();
+        
+        GUILayout.BeginHorizontal();
+        {
+            GUILayout.Label($"Enemy attack range Gizmo is currently: {enemyAtkRngGizmo}", EditorStyles.boldLabel);
+            if (GUILayout.Button("Turn On/Off enemy atk range Gizmo", GUILayout.ExpandWidth(true)))
+            {
+                if (Application.isPlaying)
+                {
+                    if (!FakingEnemyVisualisationsTest.fakingVisualisationsTestInstance.turnOnEnemyAttackRangeGizmo)
+                    {
+                        FakingEnemyVisualisationsTest.fakingVisualisationsTestInstance.turnOnEnemyAttackRangeGizmo = true;
+                        EditorGUIUtility.PingObject(FakingEnemyVisualisationsTest.fakingVisualisationsTestInstance.gameObject);
+                        Selection.activeGameObject = FakingEnemyVisualisationsTest.fakingVisualisationsTestInstance.gameObject;
+                        enemyAtkRngGizmo = "On";
+                    }
+                    else if (FakingEnemyVisualisationsTest.fakingVisualisationsTestInstance.turnOnEnemyAttackRangeGizmo)
+                    {
+                        FakingEnemyVisualisationsTest.fakingVisualisationsTestInstance.turnOnEnemyAttackRangeGizmo = false;
+                        EditorGUIUtility.PingObject(FakingEnemyVisualisationsTest.fakingVisualisationsTestInstance.gameObject);
+                        Selection.activeGameObject = FakingEnemyVisualisationsTest.fakingVisualisationsTestInstance.gameObject;
+                        enemyAtkRngGizmo = "Off";
+                    }
+                }
+                else if (!Application.isPlaying)
+                {
+                    Debug.LogWarning("Must be in play mode for this button to work!");
+                }
+            }
+        }
+        GUILayout.EndHorizontal();
+        
+        GUILayout.BeginHorizontal();
+        {
+            GUILayout.Label($"Enemy sight Gizmo is currently: {enemySightRngGizmo}", EditorStyles.boldLabel);
+            if (GUILayout.Button("Turn On/Off enemy sight Gizmo", GUILayout.ExpandWidth(true)))
+            {
+                if (Application.isPlaying)
+                {
+                    if (!FakingEnemyVisualisationsTest.fakingVisualisationsTestInstance.turnOnEnemySightRangeGizmo)
+                    {
+                        FakingEnemyVisualisationsTest.fakingVisualisationsTestInstance.turnOnEnemySightRangeGizmo = true;
+                        EditorGUIUtility.PingObject(FakingEnemyVisualisationsTest.fakingVisualisationsTestInstance.gameObject);
+                        Selection.activeGameObject = FakingEnemyVisualisationsTest.fakingVisualisationsTestInstance.gameObject;
+                        enemySightRngGizmo = "On";
+                    }
+                    else if (FakingEnemyVisualisationsTest.fakingVisualisationsTestInstance.turnOnEnemySightRangeGizmo)
+                    {
+                        FakingEnemyVisualisationsTest.fakingVisualisationsTestInstance.turnOnEnemySightRangeGizmo = false;
+                        EditorGUIUtility.PingObject(FakingEnemyVisualisationsTest.fakingVisualisationsTestInstance.gameObject);
+                        Selection.activeGameObject = FakingEnemyVisualisationsTest.fakingVisualisationsTestInstance.gameObject;
+                        enemySightRngGizmo = "Off";
+                    }
+                }
+                else if (!Application.isPlaying)
+                {
+                    Debug.LogWarning("Must be in play mode for this button to work!");
+                }
+            }
+        }
+        GUILayout.EndHorizontal();
+        
+        GUILayout.BeginHorizontal();
+        {
+            GUILayout.Label($"Enemy attack box collider Gizmo is currently: {enemyBoxColliderGizmo}", EditorStyles.boldLabel);
+            if (GUILayout.Button("Turn On/Off enemy atk box Gizmo", GUILayout.ExpandWidth(true)))
+            {
+                if (Application.isPlaying)
+                {
+                    if (!FakingEnemyVisualisationsTest.fakingVisualisationsTestInstance.turnOnEnemyAttackBoxColliderGizmo)
+                    {
+                        FakingEnemyVisualisationsTest.fakingVisualisationsTestInstance.turnOnEnemyAttackBoxColliderGizmo = true;
+                        EditorGUIUtility.PingObject(FakingEnemyVisualisationsTest.fakingVisualisationsTestInstance.gameObject);
+                        Selection.activeGameObject = FakingEnemyVisualisationsTest.fakingVisualisationsTestInstance.gameObject;
+                        enemyBoxColliderGizmo = "On";
+                    }
+                    else if (FakingEnemyVisualisationsTest.fakingVisualisationsTestInstance.turnOnEnemyAttackBoxColliderGizmo)
+                    {
+                        FakingEnemyVisualisationsTest.fakingVisualisationsTestInstance.turnOnEnemyAttackBoxColliderGizmo = false;
+                        EditorGUIUtility.PingObject(FakingEnemyVisualisationsTest.fakingVisualisationsTestInstance.gameObject);
+                        Selection.activeGameObject = FakingEnemyVisualisationsTest.fakingVisualisationsTestInstance.gameObject;
+                        enemyBoxColliderGizmo = "Off";
+                    }
+                }
+                else if (!Application.isPlaying)
+                {
+                    Debug.LogWarning("Must be in play mode for this button to work!");
+                }
+            }
+        }
+        GUILayout.EndHorizontal();
+        
+        GUILayout.BeginHorizontal();
+        {
+            GUILayout.Label($"Enemy patrol point Gizmo is currently: {enemyPatrolPointGizmo}", EditorStyles.boldLabel);
+            if (GUILayout.Button("Turn On/Off enemy patrol point Gizmo", GUILayout.ExpandWidth(true)))
+            {
+                if (Application.isPlaying)
+                {
+                    if (!FakingEnemyVisualisationsTest.fakingVisualisationsTestInstance.turnOnPatrolPointGizmo)
+                    {
+                        FakingEnemyVisualisationsTest.fakingVisualisationsTestInstance.turnOnPatrolPointGizmo = true;
+                        EditorGUIUtility.PingObject(FakingEnemyVisualisationsTest.fakingVisualisationsTestInstance.gameObject);
+                        Selection.activeGameObject = FakingEnemyVisualisationsTest.fakingVisualisationsTestInstance.gameObject;
+                        enemyPatrolPointGizmo = "On";
+                    }
+                    else if (FakingEnemyVisualisationsTest.fakingVisualisationsTestInstance.turnOnPatrolPointGizmo)
+                    {
+                        FakingEnemyVisualisationsTest.fakingVisualisationsTestInstance.turnOnPatrolPointGizmo = false;
+                        EditorGUIUtility.PingObject(FakingEnemyVisualisationsTest.fakingVisualisationsTestInstance.gameObject);
+                        Selection.activeGameObject = FakingEnemyVisualisationsTest.fakingVisualisationsTestInstance.gameObject;
+                        enemyPatrolPointGizmo = "Off";
+                    }
+                }
+                else if (!Application.isPlaying)
+                {
+                    Debug.LogWarning("Must be in play mode for this button to work!");
+                }
+            }
+        }
+        GUILayout.EndHorizontal();
+    }
+    
+    // resets the string values for visualisations //
+    void OnEnable()
+    {
+        EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
+    }
+
+    void OnDisable()
+    {
+        EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
+    }
+
+    private void OnPlayModeStateChanged(PlayModeStateChange state)
+    {
+        if (state == PlayModeStateChange.ExitingPlayMode)
+        {
+            allGizmosStatus = "Off";
+            enemyAtkRngGizmo = "Off";
+            enemySightRngGizmo = "Off";
+            enemyBoxColliderGizmo = "Off";
+            enemyPatrolPointGizmo = "Off";
+            
+            if (FakingEnemyVisualisationsTest.fakingVisualisationsTestInstance)
+            {
+                FakingEnemyVisualisationsTest.fakingVisualisationsTestInstance.turnOnAllGizmos = false;
+                FakingEnemyVisualisationsTest.fakingVisualisationsTestInstance.turnOnEnemyAttackRangeGizmo = false;
+                FakingEnemyVisualisationsTest.fakingVisualisationsTestInstance.turnOnEnemySightRangeGizmo = false;
+                FakingEnemyVisualisationsTest.fakingVisualisationsTestInstance.turnOnPatrolPointGizmo = false;
+                FakingEnemyVisualisationsTest.fakingVisualisationsTestInstance.enemyAttackBoxColliderGizmoEnabled = false;
+            }
+        }
     }
 }

@@ -7,6 +7,7 @@ TagManager:
   - Ruler
   - LDVManager
   - PrefabHolder
+  - Target
   layers:
   - Default
   - TransparentFX
@@ -14,8 +15,8 @@ TagManager:
   - 
   - Water
   - UI
-  - 
-  - 
+  - TestingArea
+  - TargetLayer
   - 
   - 
   - 
