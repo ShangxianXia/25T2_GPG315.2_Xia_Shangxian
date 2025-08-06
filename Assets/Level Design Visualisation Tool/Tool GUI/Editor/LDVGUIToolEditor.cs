@@ -62,7 +62,6 @@ public class LDVGUIToolEditor : EditorWindow
     
     
     private static GameObject rulerSpherePrefab;
-    private string rulerSpherePrefabFolder;
     void LDVRulerStuff()
     {
         EditorGUILayout.HelpBox("The continouously line drawer only works in play mode!", MessageType.Warning);
