@@ -8,6 +8,9 @@ TagManager:
   - LDVManager
   - PrefabHolder
   - Target
+  - HeatMap
+  - NavMeshArea
+  - Enemy
   layers:
   - Default
   - TransparentFX

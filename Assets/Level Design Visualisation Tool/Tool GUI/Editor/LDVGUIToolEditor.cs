@@ -1,10 +1,13 @@
+using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting.YamlDotNet.Core.Tokens;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class LDVGUIToolEditor : EditorWindow
 {
-    private enum WindowTabs {MainLDVMenu, LDVRuler, LDVGameObjectElements, LDVHeatMapConfigurations, LDVVisualisations}
+    private enum WindowTabs {MainLDVMenu, LDVRuler, LDVGameObjectElements, LDVHeatMapConfigurations, LDVVisualisations, LDVReportGeneration}
     private WindowTabs currentWindowTab = WindowTabs.MainLDVMenu;
 
     [MenuItem("LDV/Level Design Visualisation Tool")]
@@ -37,6 +40,10 @@ public class LDVGUIToolEditor : EditorWindow
             
             case WindowTabs.LDVVisualisations:
                 LDVVisualisations();
+                break;
+            
+            case WindowTabs.LDVReportGeneration:
+                LDVReportGeneration();
                 break;
         }
     }
@@ -72,6 +79,11 @@ public class LDVGUIToolEditor : EditorWindow
         if (GUILayout.Button("Visualisations?", GUILayout.Height(30f)))
         {
             currentWindowTab = WindowTabs.LDVVisualisations;
+        }
+        
+        if (GUILayout.Button("Report Generation?", GUILayout.Height(30f)))
+        {
+            currentWindowTab = WindowTabs.LDVReportGeneration;
         }
     }
     
@@ -708,6 +720,7 @@ public class LDVGUIToolEditor : EditorWindow
                     HeatMapGeneration heatMapGeneration = Selection.activeGameObject.GetComponent<HeatMapGeneration>();
                     if (heatMapGeneration)
                     {
+                        heatMapGeneration.tag = "Untagged";
                         DestroyImmediate(heatMapGeneration, false);
                     }
                     else if (!heatMapGeneration)
@@ -761,11 +774,18 @@ public class LDVGUIToolEditor : EditorWindow
                 // make the selected game object the new player
                 if (Selection.activeGameObject)
                 {
+                    GameObject[] currentPlayerToRemoveTag = GameObject.FindGameObjectsWithTag("Player");;
+                    foreach (GameObject currentPlayer in currentPlayerToRemoveTag)
+                    {
+                        currentPlayer.tag = "Untagged";
+                    }
+                    
                     HeatMapGeneration[] gameObjectsWithHeatMapScripts = FindObjectsByType<HeatMapGeneration>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
                     foreach (HeatMapGeneration gameObjectsWithHeatMap in gameObjectsWithHeatMapScripts)
                     {
                         // loop through each game object with the heatmap script and assign the selected game object to be the player
                         gameObjectsWithHeatMap.GetComponent<HeatMapGeneration>().playerGameObjectThatIsUsedForHeatMap = Selection.activeGameObject;
+                        Selection.activeGameObject.tag = "Player";
                     }
                 }
                 else
@@ -946,6 +966,205 @@ public class LDVGUIToolEditor : EditorWindow
     void OnDisable()
     {
         EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
+    }
+    
+    private int enemiesInTheScene = 0;
+    private int playersInTheScene = 0;
+    private int heatMapsInTheScene = 0;
+    private int rulersInTheScene = 0;
+    private int camerasInTheScene = 0;
+    private int gameObjectsInTheScene = 0;
+    private int targetsInTheScene = 0;
+    private int navMeshAreasInTheScene = 0;
+    private int specificGameObjectsInTheScene = 0;
+    private enum SearchMode {Tag, Name }
+    private SearchMode searchMode = SearchMode.Name;
+    private string tagName = "Untagged";
+    private string objectName = "Enter a specific object name";
+
+    private void LDVReportGeneration()
+    {
+        GUIStyle myOwnStyleForAHeader = new GUIStyle(EditorStyles.boldLabel)
+        {
+            fontSize = 25,
+            fontStyle = FontStyle.Bold,
+            alignment = TextAnchor.MiddleLeft,
+        };
+
+        GUIStyle myOwnStyleForReportGeneration = new GUIStyle(EditorStyles.boldLabel)
+        {
+            fontSize = 18,
+            fontStyle = FontStyle.Bold,
+            alignment = TextAnchor.MiddleLeft,
+        };
+
+        GUILayout.Label("There are currently: ", myOwnStyleForAHeader);
+        GUILayout.BeginHorizontal();
+        {
+            // Report generation for game objects
+            GUILayout.Label($"{gameObjectsInTheScene} Game objects in the scene!", myOwnStyleForReportGeneration);
+            if (GUILayout.Button("Count all game objects"))
+            {
+                GameObject[] eachActiveGameObjectInHierarchy =
+                    FindObjectsByType<GameObject>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+                gameObjectsInTheScene = eachActiveGameObjectInHierarchy.Length;
+            }
+        }
+        GUILayout.EndHorizontal();
+        GUILayout.BeginHorizontal();
+        {
+            // Report generation for cameras
+            GUILayout.Label($"{camerasInTheScene} Cameras in the scene!", myOwnStyleForReportGeneration);
+            if (GUILayout.Button("Count all cameras"))
+            {
+                GameObject[] eachMainCameraInScene = GameObject.FindGameObjectsWithTag("MainCamera");
+                camerasInTheScene = eachMainCameraInScene.Length;
+            }
+        }
+        GUILayout.EndHorizontal();
+        GUILayout.BeginHorizontal();
+        {
+            // Report generation for players
+            GUILayout.Label($"{playersInTheScene} Players in the scene!", myOwnStyleForReportGeneration);
+            if (GUILayout.Button("Count all players"))
+            {
+                GameObject[] eachPlayerInScene = GameObject.FindGameObjectsWithTag("Player");
+                playersInTheScene = eachPlayerInScene.Length;
+            }
+        }
+        GUILayout.EndHorizontal();
+        GUILayout.BeginHorizontal();
+        {
+            // Report generation for enemies
+            GUILayout.Label($"{enemiesInTheScene} Enemies in the scene!", myOwnStyleForReportGeneration);
+            if (GUILayout.Button("Count all enemies"))
+            {
+                GameObject[] eachEnemyInScene = GameObject.FindGameObjectsWithTag("Enemy");
+                enemiesInTheScene = eachEnemyInScene.Length;
+            }
+        }
+        GUILayout.EndHorizontal();
+        GUILayout.BeginHorizontal();
+        {
+            // Report generation for targets
+            GUILayout.Label($"{targetsInTheScene} Targets in the scene!", myOwnStyleForReportGeneration);
+            if (GUILayout.Button("Count all targets"))
+            {
+                GameObject[] eachTargetInScene = GameObject.FindGameObjectsWithTag("Target");
+                targetsInTheScene = eachTargetInScene.Length;
+            }
+        }
+        GUILayout.EndHorizontal();
+        GUILayout.BeginHorizontal();
+        {
+            // Report generation for rulers
+            GUILayout.Label($"{rulersInTheScene} Rulers in the scene!", myOwnStyleForReportGeneration);
+            if (GUILayout.Button("Count all ruler objects"))
+            {
+                GameObject[] eachRulerObject = GameObject.FindGameObjectsWithTag("Ruler");
+                rulersInTheScene = eachRulerObject.Length;
+            }
+        }
+        GUILayout.EndHorizontal();
+        GUILayout.BeginHorizontal();
+        {
+            // Report generation for heat maps
+            GUILayout.Label($"{heatMapsInTheScene} Heat maps in the scene!", myOwnStyleForReportGeneration);
+            if (GUILayout.Button("Count all heat maps"))
+            {
+                GameObject[] eachHeatMap = GameObject.FindGameObjectsWithTag("HeatMap");
+                heatMapsInTheScene = eachHeatMap.Length;
+            }
+        }
+        GUILayout.EndHorizontal();
+        GUILayout.BeginHorizontal();
+        {
+            // Report generation for nav mesh areas
+            GUILayout.Label($"{navMeshAreasInTheScene} Nav mesh areas in the scene!", myOwnStyleForReportGeneration);
+            if (GUILayout.Button("Count all nav mesh areas"))
+            {
+                GameObject[] eachNavMeshArea = GameObject.FindGameObjectsWithTag("NavMeshArea");
+                navMeshAreasInTheScene = eachNavMeshArea.Length;
+            }
+        }
+        GUILayout.EndHorizontal();
+
+        // Reset report generation
+        if (GUILayout.Button("Reset all variables"))
+        {
+            enemiesInTheScene = 0;
+            playersInTheScene = 0;
+            heatMapsInTheScene = 0;
+            rulersInTheScene = 0;
+            camerasInTheScene = 0;
+            gameObjectsInTheScene = 0;
+            targetsInTheScene = 0;
+            rulersInTheScene = 0;
+            heatMapsInTheScene = 0;
+            navMeshAreasInTheScene = 0;
+        }
+
+        GUILayout.Space(10);
+        
+        GUILayout.Label("Search specific tags that aren't pre-implemented!", myOwnStyleForAHeader);
+        
+        searchMode = (SearchMode)EditorGUILayout.EnumPopup("Search by:", searchMode);
+        
+        switch (searchMode)
+        {
+            case SearchMode.Tag:
+                tagName = EditorGUILayout.TagField("Tag:", tagName);
+                break;
+
+            case SearchMode.Name:
+                objectName = EditorGUILayout.TextField("Name Contains:", objectName);
+                break;
+        }
+            
+        GUILayout.BeginHorizontal();
+        {
+            GUILayout.Label($"{specificGameObjectsInTheScene} specific game objects in the scene!", myOwnStyleForReportGeneration);
+            
+            if (GUILayout.Button("Count specific game objects"))
+            {
+                List<GameObject> foundObjects = new List<GameObject>();
+
+                switch (searchMode)
+                {
+                    case SearchMode.Tag:
+                        GameObject[] taggedObjects = GameObject.FindGameObjectsWithTag(tagName);
+                        foundObjects.AddRange(taggedObjects);
+                        break;
+
+                    case SearchMode.Name:
+                        GameObject[] allObjects = FindObjectsByType<GameObject>(FindObjectsSortMode.None);
+                        foreach (GameObject obj in allObjects)
+                        {
+                            if (obj.name.Contains(objectName))
+                            {
+                                foundObjects.Add(obj);
+                            }
+                        }
+                        break;
+                }
+
+                if (foundObjects.Count > 0)
+                {
+                    specificGameObjectsInTheScene = foundObjects.Count;
+                }
+                else
+                {
+                    Debug.LogWarning("No objects found matching the search criteria.");
+                    specificGameObjectsInTheScene = 0;
+                }
+            }
+        }
+        GUILayout.EndHorizontal();
+
+        if (GUILayout.Button("Reset specific variable"))
+        {
+            specificGameObjectsInTheScene = 0;
+        }
     }
 
     private void OnPlayModeStateChanged(PlayModeStateChange state)

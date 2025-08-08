@@ -32,6 +32,7 @@ public class HeatMapGeneration : MonoBehaviour
 
     private void Awake()
     {
+        gameObject.tag = "HeatMap";
         playerPrefabHolderReference = FindFirstObjectByType<PrefabHolderIfPlayerIsNotAssigned>();
         textureWidth = setTextureWidth;
         textureHeight = setTextureHeight;
@@ -196,6 +197,7 @@ public class HeatMapGeneration : MonoBehaviour
         Vector3 modifiedPositionForPlayer = gameObject.transform.position;
         modifiedPositionForPlayer.y += 1f;
         playerGameObjectThatIsUsedForHeatMap = Instantiate(playerPrefabHolderReference.playerPrefabGameObjectHolder, modifiedPositionForPlayer, Quaternion.identity);
+        playerGameObjectThatIsUsedForHeatMap.tag = "Player";
         shownMissingReferenceMessage = false;
     }
 }

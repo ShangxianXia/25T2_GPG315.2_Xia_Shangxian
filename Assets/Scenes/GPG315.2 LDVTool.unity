@@ -274,7 +274,7 @@ GameObject:
   - component: {fileID: 291931347}
   m_Layer: 0
   m_Name: Sphere
-  m_TagString: Untagged
+  m_TagString: Ruler
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1324,7 +1324,7 @@ GameObject:
   - component: {fileID: 689002156}
   m_Layer: 0
   m_Name: Plane To draw heat map
-  m_TagString: Untagged
+  m_TagString: HeatMap
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -3057,7 +3057,7 @@ GameObject:
   - component: {fileID: 1645557167}
   m_Layer: 0
   m_Name: Cube
-  m_TagString: Untagged
+  m_TagString: Ruler
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -3168,7 +3168,7 @@ GameObject:
   - component: {fileID: 1657082614}
   m_Layer: 0
   m_Name: FakeEnemy
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -3579,7 +3579,7 @@ GameObject:
   - component: {fileID: 1906258597}
   m_Layer: 0
   m_Name: NavMesh Surface
-  m_TagString: Untagged
+  m_TagString: NavMeshArea
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
