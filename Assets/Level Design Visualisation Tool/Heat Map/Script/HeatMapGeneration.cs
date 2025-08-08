@@ -134,29 +134,39 @@ public class HeatMapGeneration : MonoBehaviour
         // Normalises world bound positions
         float normalizedX = Mathf.InverseLerp(worldMinBounds.x, worldMaxBounds.x, playerPos.x);
         float normalizedZ = Mathf.InverseLerp(worldMinBounds.z, worldMaxBounds.z, playerPos.z);
+
+        if (normalizedX < 0 || normalizedX > 1 || normalizedZ < 0 || normalizedZ > 1)
+        {
+            return;
+        }
         
         // Map to texture coordinates
         int textureX = Mathf.FloorToInt(normalizedX * (textureWidth - 1));
         int textureY = Mathf.FloorToInt(normalizedZ * (textureHeight - 1));
-        
-        // Clamp values to ensure they stay within texture bounds
-        textureX = Mathf.Clamp(textureX, 0, textureWidth - 1);
-        textureY = Mathf.Clamp(textureY, 0, textureHeight - 1);
-        
-        for (int y = -heatMapPointSize; y <= heatMapPointSize; y++)
+
+        if (textureX >= 0 && textureX < textureWidth && textureY >= 0 && textureY < textureHeight)
         {
-            for (int x = -heatMapPointSize; x <= heatMapPointSize; x++)
+            // Clamp values to ensure they stay within texture bounds
+            // textureX = Mathf.Clamp(textureX, 0, textureWidth - 1);
+            // textureY = Mathf.Clamp(textureY, 0, textureHeight - 1);
+
+
+            for (int y = -heatMapPointSize; y <= heatMapPointSize; y++)
             {
-                if (Mathf.Sqrt(x * x + y * y) <= heatMapPointSize)
+                for (int x = -heatMapPointSize; x <= heatMapPointSize; x++)
                 {
-                    Color currentColour = heatMapTextureReference.GetPixel(textureX + x,textureY + y);
-                    currentColour += new Color(0, modifiedHeatMapColour.g, 0);
-                
-                    heatMapTextureReference.SetPixel(textureX + x,textureY + y, currentColour);
+                    if (Mathf.Sqrt(x * x + y * y) <= heatMapPointSize)
+                    {
+                        Color currentColour = heatMapTextureReference.GetPixel(textureX + x, textureY + y);
+                        currentColour += new Color(0, modifiedHeatMapColour.g, 0);
+
+                        heatMapTextureReference.SetPixel(textureX + x, textureY + y, currentColour);
+                    }
                 }
             }
+
+            heatMapTextureReference.Apply();
         }
-        heatMapTextureReference.Apply();
     }
     
     // A visualisation of the boundaries in editor scene, a sort of help
