@@ -968,20 +968,21 @@ public class LDVGUIToolEditor : EditorWindow
         EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
     }
     
-    private int enemiesInTheScene = 0;
-    private int playersInTheScene = 0;
-    private int heatMapsInTheScene = 0;
-    private int rulersInTheScene = 0;
-    private int camerasInTheScene = 0;
-    private int gameObjectsInTheScene = 0;
-    private int targetsInTheScene = 0;
-    private int navMeshAreasInTheScene = 0;
-    private int specificGameObjectsInTheScene = 0;
-    private enum SearchMode {Tag, Name }
+    // report gen variables
+    private int reportGenerationForEnemiesInTheScene = 0;
+    private int reportGenerationForPlayersInTheScene = 0;
+    private int reportGenerationForHeatMapsInTheScene = 0;
+    private int reportGenerationForRulersInTheScene = 0;
+    private int reportGenerationForCamerasInTheScene = 0;
+    private int reportGenerationForGameObjectsInTheScene = 0;
+    private int reportGenerationForTargetsInTheScene = 0;
+    private int reportGenerationForNavMeshAreasInTheScene = 0;
+    private int reportGenerationForSpecificGameObjectsInTheScene = 0;
+    // search mode variables
+    private enum SearchMode {Tag, Name}
     private SearchMode searchMode = SearchMode.Name;
     private string tagName = "Untagged";
     private string objectName = "Enter a specific object name";
-
     private void LDVReportGeneration()
     {
         GUIStyle myOwnStyleForAHeader = new GUIStyle(EditorStyles.boldLabel)
@@ -1001,90 +1002,90 @@ public class LDVGUIToolEditor : EditorWindow
         GUILayout.Label("There are currently: ", myOwnStyleForAHeader);
         GUILayout.BeginHorizontal();
         {
-            // Report generation for game objects
-            GUILayout.Label($"{gameObjectsInTheScene} Game objects in the scene!", myOwnStyleForReportGeneration);
+            // Report generation for game objects ///////////////
+            GUILayout.Label($"{reportGenerationForGameObjectsInTheScene} Game objects in the scene!", myOwnStyleForReportGeneration);
             if (GUILayout.Button("Count all game objects"))
             {
                 GameObject[] eachActiveGameObjectInHierarchy =
                     FindObjectsByType<GameObject>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
-                gameObjectsInTheScene = eachActiveGameObjectInHierarchy.Length;
+                reportGenerationForGameObjectsInTheScene = eachActiveGameObjectInHierarchy.Length;
             }
         }
         GUILayout.EndHorizontal();
         GUILayout.BeginHorizontal();
         {
-            // Report generation for cameras
-            GUILayout.Label($"{camerasInTheScene} Cameras in the scene!", myOwnStyleForReportGeneration);
+            // Report generation for cameras ///////////////
+            GUILayout.Label($"{reportGenerationForCamerasInTheScene} Cameras in the scene!", myOwnStyleForReportGeneration);
             if (GUILayout.Button("Count all cameras"))
             {
                 GameObject[] eachMainCameraInScene = GameObject.FindGameObjectsWithTag("MainCamera");
-                camerasInTheScene = eachMainCameraInScene.Length;
+                reportGenerationForCamerasInTheScene = eachMainCameraInScene.Length;
             }
         }
         GUILayout.EndHorizontal();
         GUILayout.BeginHorizontal();
         {
-            // Report generation for players
-            GUILayout.Label($"{playersInTheScene} Players in the scene!", myOwnStyleForReportGeneration);
+            // Report generation for players ///////////////
+            GUILayout.Label($"{reportGenerationForPlayersInTheScene} Players in the scene!", myOwnStyleForReportGeneration);
             if (GUILayout.Button("Count all players"))
             {
                 GameObject[] eachPlayerInScene = GameObject.FindGameObjectsWithTag("Player");
-                playersInTheScene = eachPlayerInScene.Length;
+                reportGenerationForPlayersInTheScene = eachPlayerInScene.Length;
             }
         }
         GUILayout.EndHorizontal();
         GUILayout.BeginHorizontal();
         {
-            // Report generation for enemies
-            GUILayout.Label($"{enemiesInTheScene} Enemies in the scene!", myOwnStyleForReportGeneration);
+            // Report generation for enemies ///////////////
+            GUILayout.Label($"{reportGenerationForEnemiesInTheScene} Enemies in the scene!", myOwnStyleForReportGeneration);
             if (GUILayout.Button("Count all enemies"))
             {
                 GameObject[] eachEnemyInScene = GameObject.FindGameObjectsWithTag("Enemy");
-                enemiesInTheScene = eachEnemyInScene.Length;
+                reportGenerationForEnemiesInTheScene = eachEnemyInScene.Length;
             }
         }
         GUILayout.EndHorizontal();
         GUILayout.BeginHorizontal();
         {
-            // Report generation for targets
-            GUILayout.Label($"{targetsInTheScene} Targets in the scene!", myOwnStyleForReportGeneration);
+            // Report generation for targets ///////////////
+            GUILayout.Label($"{reportGenerationForTargetsInTheScene} Targets in the scene!", myOwnStyleForReportGeneration);
             if (GUILayout.Button("Count all targets"))
             {
                 GameObject[] eachTargetInScene = GameObject.FindGameObjectsWithTag("Target");
-                targetsInTheScene = eachTargetInScene.Length;
+                reportGenerationForTargetsInTheScene = eachTargetInScene.Length;
             }
         }
         GUILayout.EndHorizontal();
         GUILayout.BeginHorizontal();
         {
-            // Report generation for rulers
-            GUILayout.Label($"{rulersInTheScene} Rulers in the scene!", myOwnStyleForReportGeneration);
+            // Report generation for rulers ///////////////
+            GUILayout.Label($"{reportGenerationForRulersInTheScene} Rulers in the scene!", myOwnStyleForReportGeneration);
             if (GUILayout.Button("Count all ruler objects"))
             {
                 GameObject[] eachRulerObject = GameObject.FindGameObjectsWithTag("Ruler");
-                rulersInTheScene = eachRulerObject.Length;
+                reportGenerationForRulersInTheScene = eachRulerObject.Length;
             }
         }
         GUILayout.EndHorizontal();
         GUILayout.BeginHorizontal();
         {
-            // Report generation for heat maps
-            GUILayout.Label($"{heatMapsInTheScene} Heat maps in the scene!", myOwnStyleForReportGeneration);
+            // Report generation for heat maps ///////////////
+            GUILayout.Label($"{reportGenerationForHeatMapsInTheScene} Heat maps in the scene!", myOwnStyleForReportGeneration);
             if (GUILayout.Button("Count all heat maps"))
             {
                 GameObject[] eachHeatMap = GameObject.FindGameObjectsWithTag("HeatMap");
-                heatMapsInTheScene = eachHeatMap.Length;
+                reportGenerationForHeatMapsInTheScene = eachHeatMap.Length;
             }
         }
         GUILayout.EndHorizontal();
         GUILayout.BeginHorizontal();
         {
-            // Report generation for nav mesh areas
-            GUILayout.Label($"{navMeshAreasInTheScene} Nav mesh areas in the scene!", myOwnStyleForReportGeneration);
+            // Report generation for nav mesh areas ///////////////
+            GUILayout.Label($"{reportGenerationForNavMeshAreasInTheScene} Nav mesh areas in the scene!", myOwnStyleForReportGeneration);
             if (GUILayout.Button("Count all nav mesh areas"))
             {
                 GameObject[] eachNavMeshArea = GameObject.FindGameObjectsWithTag("NavMeshArea");
-                navMeshAreasInTheScene = eachNavMeshArea.Length;
+                reportGenerationForNavMeshAreasInTheScene = eachNavMeshArea.Length;
             }
         }
         GUILayout.EndHorizontal();
@@ -1092,20 +1093,21 @@ public class LDVGUIToolEditor : EditorWindow
         // Reset report generation
         if (GUILayout.Button("Reset all variables"))
         {
-            enemiesInTheScene = 0;
-            playersInTheScene = 0;
-            heatMapsInTheScene = 0;
-            rulersInTheScene = 0;
-            camerasInTheScene = 0;
-            gameObjectsInTheScene = 0;
-            targetsInTheScene = 0;
-            rulersInTheScene = 0;
-            heatMapsInTheScene = 0;
-            navMeshAreasInTheScene = 0;
+            reportGenerationForEnemiesInTheScene = 0;
+            reportGenerationForPlayersInTheScene = 0;
+            reportGenerationForHeatMapsInTheScene = 0;
+            reportGenerationForRulersInTheScene = 0;
+            reportGenerationForCamerasInTheScene = 0;
+            reportGenerationForGameObjectsInTheScene = 0;
+            reportGenerationForTargetsInTheScene = 0;
+            reportGenerationForRulersInTheScene = 0;
+            reportGenerationForHeatMapsInTheScene = 0;
+            reportGenerationForNavMeshAreasInTheScene = 0;
         }
 
         GUILayout.Space(10);
         
+        // Report generation for specific non pre made tags/names /////////////////////////////////
         GUILayout.Label("Search specific tags that aren't pre-implemented!", myOwnStyleForAHeader);
         
         searchMode = (SearchMode)EditorGUILayout.EnumPopup("Search by:", searchMode);
@@ -1123,9 +1125,9 @@ public class LDVGUIToolEditor : EditorWindow
             
         GUILayout.BeginHorizontal();
         {
-            GUILayout.Label($"{specificGameObjectsInTheScene} specific game objects in the scene!", myOwnStyleForReportGeneration);
+            GUILayout.Label($"{reportGenerationForSpecificGameObjectsInTheScene} specific game objects in the scene!", myOwnStyleForReportGeneration);
             
-            if (GUILayout.Button("Count specific game objects"))
+            if (GUILayout.Button("Count and Ping specific game objects"))
             {
                 List<GameObject> foundObjects = new List<GameObject>();
 
@@ -1150,21 +1152,25 @@ public class LDVGUIToolEditor : EditorWindow
 
                 if (foundObjects.Count > 0)
                 {
-                    specificGameObjectsInTheScene = foundObjects.Count;
+                    reportGenerationForSpecificGameObjectsInTheScene = foundObjects.Count;
+                    Selection.activeGameObject = foundObjects[0];
+
+                    Selection.objects = foundObjects.ToArray();
+                    
+                    EditorGUIUtility.PingObject(foundObjects[0]);
                 }
                 else
                 {
                     Debug.LogWarning("No objects found matching the search criteria.");
-                    specificGameObjectsInTheScene = 0;
+                    reportGenerationForSpecificGameObjectsInTheScene = 0;
                 }
+            }
+            if (GUILayout.Button("Reset specific variable"))
+            {
+                reportGenerationForSpecificGameObjectsInTheScene = 0;
             }
         }
         GUILayout.EndHorizontal();
-
-        if (GUILayout.Button("Reset specific variable"))
-        {
-            specificGameObjectsInTheScene = 0;
-        }
     }
 
     private void OnPlayModeStateChanged(PlayModeStateChange state)

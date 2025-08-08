@@ -11,6 +11,10 @@ TagManager:
   - HeatMap
   - NavMeshArea
   - Enemy
+  - Barrel
+  - Cauldron
+  - Weapon
+  - Car
   layers:
   - Default
   - TransparentFX
