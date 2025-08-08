@@ -1,9 +1,12 @@
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Unity.VisualScripting.YamlDotNet.Core.Tokens;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
+using Random = UnityEngine.Random;
 
 public class LDVGUIToolEditor : EditorWindow
 {
@@ -1171,6 +1174,65 @@ public class LDVGUIToolEditor : EditorWindow
             }
         }
         GUILayout.EndHorizontal();
+        
+        GUILayout.Space(5);
+        
+        GUILayout.Label("Generate a text document/Json file?", myOwnStyleForAHeader);
+
+        const string fileName = "ReportGenerationGPG315_.txt";
+        const string reportGenerationFolder = "Assets/Level Design Visualisation Tool/Report generation";
+        string GenerateReportContent()
+        {
+            return $"Report Generated: {DateTime.Now}\n\n" +
+                   $"Enemies in Scene: {reportGenerationForEnemiesInTheScene}\n" +
+                   $"Players in Scene: {reportGenerationForPlayersInTheScene}\n" +
+                   $"Heat Maps in Scene: {reportGenerationForHeatMapsInTheScene}\n" +
+                   $"Rulers in Scene: {reportGenerationForRulersInTheScene}\n" +
+                   $"Cameras in Scene: {reportGenerationForCamerasInTheScene}\n" +
+                   $"GameObjects in Scene: {reportGenerationForGameObjectsInTheScene}\n" +
+                   $"Targets in Scene: {reportGenerationForTargetsInTheScene}\n" +
+                   $"NavMesh Areas in Scene: {reportGenerationForNavMeshAreasInTheScene}\n" +
+                   $"Specific GameObjects in Scene: {reportGenerationForSpecificGameObjectsInTheScene}\n";
+        }
+
+        if (GUILayout.Button("Generate text file in Report Generation folder"))
+        {
+            // Ensure the REPORT FOLDER exists (not the file path)
+            if (!Directory.Exists(reportGenerationFolder))
+            {
+                Directory.CreateDirectory(reportGenerationFolder);
+                AssetDatabase.Refresh();
+            }
+
+            // Combine path for the FILE (not directory)
+            string filePath = Path.Combine(reportGenerationFolder, fileName);
+            try
+            {
+                File.WriteAllText(filePath, GenerateReportContent());
+                AssetDatabase.Refresh();
+                EditorUtility.DisplayDialog("Success", "Report generated successfully!", "OK");
+            }
+            catch (UnauthorizedAccessException)
+            {
+                EditorUtility.DisplayDialog("Error", "Permission denied! Check folder access.", "OK");
+            }
+            catch (Exception ex)
+            {
+                EditorUtility.DisplayDialog("Error", $"Failed to generate report: {ex.Message}", "OK");
+            }
+        }
+
+        // if (GUILayout.Button("Generate text document with custom folder saving"))
+        // {
+        //     string customSavingPath = EditorUtility.SaveFilePanel("Save Report", Application.dataPath + reportGenerationFolder, fileName + System.DateTime.Now.ToString("dd/MMM/Yyyyy/HHhr/mmMin/ssSec"), "txt");
+        //
+        //     if (customSavingPath.Length != 0)
+        //     {
+        //         File.WriteAllText(customSavingPath, GenerateReportContent());
+        //         AssetDatabase.Refresh();
+        //         EditorUtility.DisplayDialog("Success", "Report generated successfully!", "OK");
+        //     }
+        // }
     }
 
     private void OnPlayModeStateChanged(PlayModeStateChange state)
