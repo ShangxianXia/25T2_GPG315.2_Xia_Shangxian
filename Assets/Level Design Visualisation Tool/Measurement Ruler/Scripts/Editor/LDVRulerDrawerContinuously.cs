@@ -15,10 +15,10 @@ public static class LDVRulerDrawerContinuously
     {
         if (!Application.isPlaying) return;
         
-        LDVManager ldvManagerReference = Object.FindFirstObjectByType<LDVManager>();
-        if (!ldvManagerReference) return;
+        LDVRulerManager ldvRulerManagerReference = Object.FindFirstObjectByType<LDVRulerManager>();
+        if (!ldvRulerManagerReference) return;
 
-        DrawMeasurementLines(ldvManagerReference);
+        DrawMeasurementLines(ldvRulerManagerReference);
     }
     
     private static Texture2D FakingBorderWithTexture(int colourWidth, int colourHeight, Color aColourThatIsStored)
@@ -33,20 +33,20 @@ public static class LDVRulerDrawerContinuously
         return result;
     }
 
-    private static void DrawMeasurementLines(LDVManager ldvManagerReference)
+    private static void DrawMeasurementLines(LDVRulerManager ldvRulerManagerReference)
     {
-        if (ldvManagerReference.LDVRulerSpheresList.Count >= 2)
+        if (ldvRulerManagerReference.LDVRulerSpheresList.Count >= 2)
         {
             if (continuouslyDrawingMeasurementLines)
             {
-                for (int i = 0; i < ldvManagerReference.LDVRulerSpheresList.Count - 1; i++)
+                for (int i = 0; i < ldvRulerManagerReference.LDVRulerSpheresList.Count - 1; i++)
                 {
                     // line colour
                     Handles.color = Color.cyan;
             
                     // makes vector3 positions from the game objects so the API can read them
-                    Vector3 measurementSpherePosition1 = ldvManagerReference.LDVRulerSpheresList[i].transform.position;
-                    Vector3 measurementSpherePosition2 = ldvManagerReference.LDVRulerSpheresList[i + 1].transform.position;
+                    Vector3 measurementSpherePosition1 = ldvRulerManagerReference.LDVRulerSpheresList[i].transform.position;
+                    Vector3 measurementSpherePosition2 = ldvRulerManagerReference.LDVRulerSpheresList[i + 1].transform.position;
             
                     // Draws the dotted lines, and displays the distances between them measuring spheres
                     Handles.DrawDottedLine(measurementSpherePosition1, measurementSpherePosition2, 4f);

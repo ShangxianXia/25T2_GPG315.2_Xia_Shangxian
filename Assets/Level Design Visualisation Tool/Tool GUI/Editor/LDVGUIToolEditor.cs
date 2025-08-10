@@ -62,7 +62,7 @@ public class LDVGUIToolEditor : EditorWindow
             border = new RectOffset(10, 10, 10, 10)
         };
         
-        GUILayout.Label("This is the LDV Tool,\n to begin select the tabs up top that correspond to the feature\n Or press the buttons on the bottom.", myOwnStyleForAHeader);
+        GUILayout.Label("This is the Level Design Visualisation Tool,\n made to help students easily visualise design elements,\n to begin select the tabs up top that correspond to the feature\n or press the buttons on the bottom.", myOwnStyleForAHeader);
 
         if (GUILayout.Button("Measuring Ruler?", GUILayout.Height(30f)))
         {
@@ -95,6 +95,15 @@ public class LDVGUIToolEditor : EditorWindow
     private string continuousStringDebugDisplay = "Off";
     void LDVRulerStuff()
     {
+        GUIStyle myOwnStyleForAHeader = new GUIStyle(EditorStyles.boldLabel)
+        {
+            fontSize = 18,
+            fontStyle = FontStyle.Bold,
+            alignment = TextAnchor.MiddleCenter,
+            border = new RectOffset(10, 10, 10, 10)
+        };
+
+        GUILayout.Label("This is the LDV Ruler, used for visualising distance!", myOwnStyleForAHeader);
         EditorGUILayout.HelpBox("The continouously line drawer only works in play mode!", MessageType.Warning);
         
         GUILayout.BeginHorizontal();
@@ -103,7 +112,7 @@ public class LDVGUIToolEditor : EditorWindow
             bool LDVManagerSelected = false;
             foreach (GameObject gameObjectsThatAreBeingCheckedToSeeIfTheyHaveLDVManagerReference in Selection.gameObjects)
             {
-                if (gameObjectsThatAreBeingCheckedToSeeIfTheyHaveLDVManagerReference.gameObject.GetComponent<LDVManager>())
+                if (gameObjectsThatAreBeingCheckedToSeeIfTheyHaveLDVManagerReference.gameObject.GetComponent<LDVRulerManager>())
                 {
                     LDVManagerSelected = true;
                     break;
@@ -116,7 +125,7 @@ public class LDVGUIToolEditor : EditorWindow
             }
             else
             {
-                LDVManager[] LDVManagerReferenceList = FindObjectsByType<LDVManager>(FindObjectsSortMode.None);
+                LDVRulerManager[] LDVManagerReferenceList = FindObjectsByType<LDVRulerManager>(FindObjectsSortMode.None);
                 if (LDVManagerReferenceList.Length > 0)
                 {
                     LDVManagerSelected = true;
@@ -173,7 +182,7 @@ public class LDVGUIToolEditor : EditorWindow
                 {
                     Debug.Log("A path found to the measurement spheres prefab.");
                     GameObject newMeasurementSphere = Instantiate(rulerSpherePrefab);
-                    LDVManager.LdvManagerInstance.CheckForMeasurementSpheresThenAddToList(newMeasurementSphere);
+                    LDVRulerManager.ldvRulerManagerInstance.CheckForMeasurementSpheresThenAddToList(newMeasurementSphere);
                 }
                 else
                 {
@@ -201,6 +210,25 @@ public class LDVGUIToolEditor : EditorWindow
     private float advancedZScaleValue;
     void LDVGameObjectModifiableElements()
     {
+        GUIStyle myOwnStyleForAHeader = new GUIStyle(EditorStyles.boldLabel)
+        {
+            fontSize = 18,
+            fontStyle = FontStyle.Bold,
+            alignment = TextAnchor.MiddleCenter,
+            border = new RectOffset(10, 10, 10, 10)
+        };
+        
+        GUIStyle myOwnStyleForASentence = new GUIStyle(EditorStyles.boldLabel)
+        {
+            fontSize = 15,
+            fontStyle = FontStyle.Bold,
+            alignment = TextAnchor.MiddleCenter,
+            border = new RectOffset(10, 10, 10, 10)
+        };
+
+        GUILayout.Label("This is the LDV Game object elements, used for manipulating game objects!", myOwnStyleForAHeader);
+        GUILayout.Label("To use this, just select a object in the hierarchy and click the button!", myOwnStyleForASentence);
+        
         // Object transform / Colour modifications //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         GUILayout.Space(10f);
         GUILayout.Label("Reset Selected Game Objects", EditorStyles.boldLabel);
@@ -604,10 +632,14 @@ public class LDVGUIToolEditor : EditorWindow
             {
                 if (Selection.activeGameObject)
                 {
-                    Vector3 newCoordinatesForSelectedGameObject = new Vector3(advancedXPositionValue, advancedYPositionValue, advancedZPositionValue);
+                    Vector3 newPositionalCoordinatesForSelectedGameObject = new Vector3(advancedXPositionValue, advancedYPositionValue, advancedZPositionValue);
+                    Quaternion newRotationalCoordinatesForSelectedGameObject = Quaternion.Euler(advancedXRotationValue, advancedYRotationValue, advancedZRotationValue);
+                    Vector3 newScaledCoordinatesForSelectedGameObject = new Vector3(advancedXScaleValue, advancedYScaleValue, advancedZScaleValue);
                 
                     Undo.RecordObject(Selection.activeGameObject.transform, $"New Coordinates for selected game object: {Selection.activeGameObject.gameObject.name}");
-                    Selection.activeGameObject.transform.position = newCoordinatesForSelectedGameObject;
+                    Selection.activeGameObject.transform.position = newPositionalCoordinatesForSelectedGameObject;
+                    Selection.activeGameObject.transform.rotation = newRotationalCoordinatesForSelectedGameObject;
+                    Selection.activeGameObject.transform.localScale = newScaledCoordinatesForSelectedGameObject;
                 }
                 else
                 {
@@ -616,7 +648,7 @@ public class LDVGUIToolEditor : EditorWindow
             }
             
             // copies and pastes the vectors of the selected game object to the values above
-            if (GUILayout.Button("Copy and Paste Coordinates of selected game object to values above?", GUILayout.ExpandWidth(false)))
+            if (GUILayout.Button("Copy & Paste Coordinates of selected game object to values above?", GUILayout.ExpandWidth(false)))
             {
                 if (Selection.activeGameObject)
                 {
@@ -674,9 +706,11 @@ public class LDVGUIToolEditor : EditorWindow
                 if (Selection.activeGameObject)
                 {
                     Vector3 modifiedPositionUsingAdvancedCoordination = new(advancedXPositionValue, advancedYPositionValue, advancedZPositionValue);
-                    Quaternion modifiedRotation = Quaternion.Euler(advancedXRotationValue, advancedYRotationValue, advancedZRotationValue); 
+                    Quaternion modifiedRotationUsingAdvancedCoordination = Quaternion.Euler(advancedXRotationValue, advancedYRotationValue, advancedZRotationValue); 
+                    Vector3 modifiedScaleUsingAdvancedCoordination = new(advancedXScaleValue, advancedYScaleValue, advancedZScaleValue);
                     
-                    GameObject newlyInstantiatedGameObjectUsingAdvancedCoordination = Instantiate(Selection.activeGameObject.gameObject, modifiedPositionUsingAdvancedCoordination, modifiedRotation);
+                    GameObject newlyInstantiatedGameObjectUsingAdvancedCoordination = Instantiate(Selection.activeGameObject.gameObject, modifiedPositionUsingAdvancedCoordination, modifiedRotationUsingAdvancedCoordination);
+                    newlyInstantiatedGameObjectUsingAdvancedCoordination.transform.localScale = modifiedScaleUsingAdvancedCoordination;
                     
                     Undo.RegisterCreatedObjectUndo(newlyInstantiatedGameObjectUsingAdvancedCoordination, "Instantiated selected game object with advanced coordination");
                     
@@ -694,6 +728,16 @@ public class LDVGUIToolEditor : EditorWindow
     private int newDotSizeForHeatMap;
     void LDVHeatMapConfigurations()
     {
+        GUIStyle myOwnStyleForAHeader = new GUIStyle(EditorStyles.boldLabel)
+        {
+            fontSize = 25,
+            fontStyle = FontStyle.Bold,
+            alignment = TextAnchor.MiddleCenter,
+            border = new RectOffset(10, 10, 10, 10)
+        };
+
+        GUILayout.Label("This is the LDV Heat maps, used for heat map testing!", myOwnStyleForAHeader);
+        
         EditorGUILayout.HelpBox("There is not supposed to be more than 1 heat map at once!\n The heat map scripts are also supposed to be on planes!", MessageType.Info);
         
         GUILayout.BeginHorizontal();
@@ -812,6 +856,16 @@ public class LDVGUIToolEditor : EditorWindow
     public string enemyPatrolPointGizmo = "Off";
     void LDVVisualisations()
     {
+        GUIStyle myOwnStyleForAHeader = new GUIStyle(EditorStyles.boldLabel)
+        {
+            fontSize = 18,
+            fontStyle = FontStyle.Bold,
+            alignment = TextAnchor.MiddleCenter,
+            border = new RectOffset(10, 10, 10, 10)
+        };
+
+        GUILayout.Label("This is the LDV Visualisations, used for visualising enemy's behaviours!", myOwnStyleForAHeader);
+        
         EditorGUILayout.HelpBox("This is the LDV Visualisation section \n Must be in play to work!", MessageType.Info);
             
         GUILayout.BeginHorizontal();
@@ -997,6 +1051,16 @@ public class LDVGUIToolEditor : EditorWindow
         {
             fontSize = 25,
             fontStyle = FontStyle.Bold,
+            alignment = TextAnchor.MiddleCenter,
+            border = new RectOffset(10, 10, 10, 10)
+        };
+
+        GUILayout.Label("This is the LDV Report generation, used for generating reports!", myOwnStyleForAHeader);
+        
+        GUIStyle myOwnStyleForAReportHeader = new GUIStyle(EditorStyles.boldLabel)
+        {
+            fontSize = 20,
+            fontStyle = FontStyle.Bold,
             alignment = TextAnchor.MiddleLeft,
         };
 
@@ -1007,7 +1071,7 @@ public class LDVGUIToolEditor : EditorWindow
             alignment = TextAnchor.MiddleLeft,
         };
 
-        GUILayout.Label("There are currently: ", myOwnStyleForAHeader);
+        GUILayout.Label("There are currently: ", myOwnStyleForAReportHeader);
         GUILayout.BeginHorizontal();
         {
             // Report generation for game objects ///////////////

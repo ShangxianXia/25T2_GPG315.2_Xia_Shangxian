@@ -3,21 +3,21 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Serialization;
 
-public class LDVManager : MonoBehaviour
+public class LDVRulerManager : MonoBehaviour
 {
-    public static LDVManager LdvManagerInstance {get; private set;}
+    public static LDVRulerManager ldvRulerManagerInstance {get; private set;}
     
     [Header("GameObjects that are to have a measurement")]
     public List<GameObject> LDVRulerSpheresList = new();
     
     private void Awake()
     {
-        if (LdvManagerInstance && LdvManagerInstance != this)
+        if (ldvRulerManagerInstance && ldvRulerManagerInstance != this)
         {
             Destroy(this);
             return;
         }
-        LdvManagerInstance = this;
+        ldvRulerManagerInstance = this;
     }
     
     public void CheckForMeasurementSpheresThenAddToList(GameObject measurementSpheres)
