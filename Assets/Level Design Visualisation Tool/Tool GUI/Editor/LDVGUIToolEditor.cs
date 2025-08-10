@@ -90,8 +90,9 @@ public class LDVGUIToolEditor : EditorWindow
         }
     }
     
-    
     private static GameObject rulerSpherePrefab;
+    private bool continuousBoolDisplayCheck;
+    private string continuousStringDebugDisplay = "Off";
     void LDVRulerStuff()
     {
         EditorGUILayout.HelpBox("The continouously line drawer only works in play mode!", MessageType.Warning);
@@ -141,13 +142,17 @@ public class LDVGUIToolEditor : EditorWindow
             {
                 LDVRulerDrawerContinuously.continuouslyDrawingMeasurementLines = false;
                 showLDVRuler = false;
+                continuousStringDebugDisplay = "Off";
             }
             else
             {
                 LDVRulerDrawerContinuously.continuouslyDrawingMeasurementLines = true;
                 showLDVRuler = true;
+                continuousStringDebugDisplay = "On";
             }
         }
+        
+        GUILayout.Label($"Continuous draw is: {continuousStringDebugDisplay}");
         
         GUILayout.EndHorizontal();
         
@@ -1177,9 +1182,9 @@ public class LDVGUIToolEditor : EditorWindow
         
         GUILayout.Space(5);
         
-        GUILayout.Label("Generate a text document/Json file?", myOwnStyleForAHeader);
+        GUILayout.Label("Generate a text document for the variables above?", myOwnStyleForAHeader);
 
-        const string fileName = "ReportGenerationGPG315_.txt";
+        const string fileName = "ReportGenerationGPG315";
         const string reportGenerationFolder = "Assets/Level Design Visualisation Tool/Report generation";
         string GenerateReportContent()
         {
@@ -1203,38 +1208,47 @@ public class LDVGUIToolEditor : EditorWindow
                 Directory.CreateDirectory(reportGenerationFolder);
                 AssetDatabase.Refresh();
             }
-
-            // Combine path for the FILE (not directory)
-            string filePath = Path.Combine(reportGenerationFolder, fileName);
+            
+            string filePath = Path.Combine(reportGenerationFolder, $"{fileName}.txt" );
             try
             {
                 File.WriteAllText(filePath, GenerateReportContent());
                 AssetDatabase.Refresh();
-                EditorUtility.DisplayDialog("Success", "Report generated successfully!", "OK");
+                EditorUtility.DisplayDialog("Success", "A new report generated/replaced successfully!", "Continue");
             }
             catch (UnauthorizedAccessException)
             {
-                EditorUtility.DisplayDialog("Error", "Permission denied! Check folder access.", "OK");
+                EditorUtility.DisplayDialog("Error", "Permission denied! Check folder access.", "Continue");
             }
-            catch (Exception ex)
+            catch (Exception errorMessageForFailedReportGeneration)
             {
-                EditorUtility.DisplayDialog("Error", $"Failed to generate report: {ex.Message}", "OK");
+                EditorUtility.DisplayDialog("Error", $"Failed to generate report: {errorMessageForFailedReportGeneration.Message}", "Continue");
             }
         }
 
-        // if (GUILayout.Button("Generate text document with custom folder saving"))
-        // {
-        //     string customSavingPath = EditorUtility.SaveFilePanel("Save Report", Application.dataPath + reportGenerationFolder, fileName + System.DateTime.Now.ToString("dd/MMM/Yyyyy/HHhr/mmMin/ssSec"), "txt");
-        //
-        //     if (customSavingPath.Length != 0)
-        //     {
-        //         File.WriteAllText(customSavingPath, GenerateReportContent());
-        //         AssetDatabase.Refresh();
-        //         EditorUtility.DisplayDialog("Success", "Report generated successfully!", "OK");
-        //     }
-        // }
+        if (GUILayout.Button("Generate text document with custom folder saving"))
+        {
+            string filePath = Path.Combine(reportGenerationFolder, fileName);
+            string customSavingPath = EditorUtility.SaveFilePanel("Save Report", filePath, $"{fileName}_" + DateTime.Now.ToString("dd_MM_yyyy_HH_mm_ss"), "txt");
+        
+            try
+            {
+                File.WriteAllText(customSavingPath, GenerateReportContent());
+                AssetDatabase.Refresh();
+                EditorUtility.DisplayDialog("Success", "New report generated successfully!", "OK");
+            }
+            catch (UnauthorizedAccessException)
+            {
+                EditorUtility.DisplayDialog("Error", "Permission denied! Check folder access.", "Continue");
+            }
+            catch (Exception errorMessageForFailedReportGeneration)
+            {
+                EditorUtility.DisplayDialog("Error", $"Failed to generate report: {errorMessageForFailedReportGeneration.Message}", "Continue");
+            }
+        }
     }
-
+    
+    // turns some variables off at the end of play mode
     private void OnPlayModeStateChanged(PlayModeStateChange state)
     {
         if (state == PlayModeStateChange.ExitingPlayMode)
@@ -1244,6 +1258,7 @@ public class LDVGUIToolEditor : EditorWindow
             enemySightRngGizmo = "Off";
             enemyBoxColliderGizmo = "Off";
             enemyPatrolPointGizmo = "Off";
+            continuousStringDebugDisplay = "Off";
             
             if (FakingEnemyVisualisationsTest.fakingVisualisationsTestInstance)
             {
